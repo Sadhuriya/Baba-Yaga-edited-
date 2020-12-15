@@ -260,11 +260,19 @@ function setup(){
     bullet6.addImage(bulletimg);
     bullet7=createSprite(enemy6.x,enemy6.y,10,10);
     bullet7.addImage(bulletimg);
+
     // SECRET
     secret=createSprite(757,388,10,10);
+
     //health
     health1=createSprite(870,630,10,10);
-    health1.addImage(health100);
+    health1.addImage("100",health100);
+    health1.addImage("80",health80);
+    health1.addImage("60",health60);
+    health1.addImage("40",health40);
+    health1.addImage("20",health20);
+    health1.addImage("0",health0);
+
     // SET COLLIDERS
     wall1.setCollider("rectangle",0,0,100,20);
     wall2.setCollider("rectangle",0,0,100,20);
@@ -446,26 +454,46 @@ if(player.isTouching(secret)){
 if(bullet2.isTouching(player)){
     bullet2.destroy();
     health=health-20;
+    console.log("bullet2")
 }
 if(bullet3.isTouching(player)){
     bullet3.destroy();
     health=health-20;
+    console.log("bullet3")
 }
 if(bullet4.isTouching(player)){
     bullet4.destroy();
     health=health-20;
+    console.log("bullet4")
 }
 if(bullet5.isTouching(player)){
     bullet5.destroy();
     health=health-20;
+    console.log("bullet5")
 }
 if(bullet6.isTouching(player)){
     bullet6.destroy();
     health=health-20;
+    console.log("bullet6")
 }
 if(bullet7.isTouching(player)){
     bullet7.destroy();
     health=health-20;
+    console.log("bullet7")
+}
+
+if (health === 100){
+health1.changeImage("100",health100)
+}else if (health === 80){
+    health1.changeImage("80",health80)
+}else if (health === 60){
+    health1.changeImage("60",health60)
+}else if (health === 40){
+    health1.changeImage("40",health40)
+}else if (health === 20){
+    health1.changeImage("20",health20)
+}else if (health === 0){
+    health1.changeImage("0",health0)
 }
 
 
@@ -557,7 +585,7 @@ if(bullet7.isTouching(player)){
     }
     player.depth=dirt1.depth+50;
 
-    console.log(player.x,player.y) 
+    //console.log(player.x,player.y) 
 }
 function play(){
     background("green");
@@ -567,7 +595,7 @@ function play(){
 }
 
 function shoot(b,p) {
-     console.log("calling");
+     //console.log("calling");
       var x1 = p.x - b.x; 
       var y1 = p.y - b.y;
        var x2 = b.x-p.x; 
@@ -594,7 +622,7 @@ function shoot(b,p) {
             b.velocityY = -y2 * 10 } 
         }
         function PlayerShoot(b) {
-            console.log("calling");
+           // console.log("calling");
              var x1 = mouseX - b.x; 
              var y1 = mouseY - b.y;
               var x2 = b.x-mouseX; 
