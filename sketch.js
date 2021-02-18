@@ -12,12 +12,17 @@ var ground,groundimg;
 var bench,benchimg,benchHimg;
 var pond,pondimg
 var bullet,bulletimg;
+var trophy=0;
+var health=100;
+var health100,health80,health60,health40,health20,health0;
 var form,game;
-var gameState=0;
+var gunshot;
+var gameState=1;
 var name='';
+var Colliders
 
-var health = 100;
 
+    
 
 function preload(){
 wallimg=loadImage("Images/Wall.png");
@@ -38,21 +43,33 @@ benchimg=loadImage("Images/bench.png");
 benchHimg=loadImage("Images/benchH.png")
 pondimg=loadImage("Images/Pond.png");
 bulletimg=loadImage("Images/Bullet.png");
+health100=loadImage("Images/100.png");
+health80=loadImage("Images/80.png");
+health60=loadImage("Images/60.png");
+health40=loadImage("Images/40.png");
+health20=loadImage("Images/20.png");
+health0=loadImage("Images/0.png");
+gunshot=loadSound("gunshot.mp3");
 }
-
 
 function setup(){
     createCanvas(1366,653);
 
     form= new Form();
-    form.display();
+    
 
     edges=createEdgeSprites();
+
     player= createSprite(600,500,20,20);
     player.addImage("p",playerimg);
     player.addImage("ps",playershootimg);
     player.scale=0.5;
-    
+
+    Colliders=new Group();
+    bulletGroup=new Group();
+    bulletsGroup=new Group();
+    wallGroup = new Group();
+
     // WALLS
     wall1= createSprite(150,400,20,20);
     wall1.addImage(wallHimg);
@@ -114,11 +131,41 @@ function setup(){
     wall25.addImage(wallHimg);
     wall26=createSprite(370,167.5,20,20);
     wall26.addImage(wallimg);
+
+    wallGroup.add(wall1);
+    wallGroup.add(wall2);
+    wallGroup.add(wall3);
+    wallGroup.add(wall4);
+    wallGroup.add(wall5);
+    wallGroup.add(wall6);
+    wallGroup.add(wall7);
+    wallGroup.add(wall8);
+    wallGroup.add(wall9);
+    wallGroup.add(wall10);
+    wallGroup.add(wall11);
+    wallGroup.add(wall12);
+    wallGroup.add(wall13);
+    wallGroup.add(wall14);
+    wallGroup.add(wall15);
+    wallGroup.add(wall16);
+    wallGroup.add(wall17);
+    wallGroup.add(wall18);
+    wallGroup.add(wall19);
+    wallGroup.add(wall20);
+    wallGroup.add(wall21);
+    wallGroup.add(wall22);
+    wallGroup.add(wall23);
+    wallGroup.add(wall24);
+    wallGroup.add(wall25);
+    wallGroup.add(wall26);
+
     //stones
     stone1=createSprite(170,320,20,20);
     stone1.addImage(stoneimg);
     stone2=createSprite(400,70,20,20)
     stone2.addImage(stoneimg);
+
+    
     // trees
     tree1=createSprite(200,120,20,20);
     tree1.addImage(treeimg);
@@ -145,6 +192,7 @@ function setup(){
     box2.addImage(boxesimg);
     box3=createSprite(750,50,20,20);
     box3.addImage(boxesimg);
+
     // grass
     grass1=createSprite(500,350,20,20);
     grass1.addImage(grassimg);
@@ -176,6 +224,7 @@ function setup(){
     grass10=createSprite(500,350,20,20);
     grass10.addImage(grassimg);
     grass10.scale=0.5
+
     // Dirt
     dirt1=createSprite(230,200,20,20);
     dirt1.addImage(groundimg);  
@@ -191,10 +240,12 @@ function setup(){
     dirt10.addImage(groundimg);
     dirt11=createSprite(100,70,20,20);
     dirt11.addImage(groundimg)
+
     // Pond
     pond1=createSprite(50,500,20,20);
     pond1.addImage(pondimg);
     pond1.scale=1.5
+
     // bench
     bench1=createSprite(400,340,20,20);
     bench1.addImage(benchimg);
@@ -204,16 +255,16 @@ function setup(){
     bench3.addImage(benchimg);
     bench4=createSprite(50,150,20,20);
     bench4.addImage(benchHimg);
+
     // Hostages
     house1=createSprite(50,50,20,20);
     house1.addImage(houseimg);
+
     //enemies
     enemy1=createSprite(120,330,20,20);
     enemy1.addImage("e",enemyimg);
     enemy1.addImage("s",enemyshootimg);
     enemy1.scale=0.5;
-
-    enemy1.debug = true;
     enemy2=createSprite(200,180,20,20);
     enemy2.addImage("e",enemyimg);
     enemy2.addImage("s",enemyshootimg);
@@ -234,12 +285,20 @@ function setup(){
     enemy6.addImage("e",enemyimg);
     enemy6.addImage("s",enemyshootimg);
     enemy6.scale=0.5;
-
-    
-    //bullet
     
 
+    enemyBullet=new Group()
+    // SECRET
+    secret=createSprite(757,388,10,10);
 
+    //health
+    health1=createSprite(870,630,10,10);
+    health1.addImage("100",health100);
+    health1.addImage("80",health80);
+    health1.addImage("60",health60);
+    health1.addImage("40",health40);
+    health1.addImage("20",health20);
+    health1.addImage("0",health0);
 
     // SET COLLIDERS
     wall1.setCollider("rectangle",0,0,100,20);
@@ -283,246 +342,63 @@ function setup(){
     tree7.setCollider("circle",-4,0,15);
     tree8.setCollider("circle",-4,0,15);
     pond1.setCollider("circle",-25,-10,50);
-    house1.setCollider("rectangle",-20,0,40,90);
+    house1.setCollider("rectangle",-20,0,40,90)
 
-    player.debug = true;
+
     player.setCollider("circle",0,-20,20)
 
-    enemyBullet = new Group();
-
-    bullet4=createSprite(enemy3.x,enemy3.y,10,10);
-    bullet4.addImage(bulletimg);
-    bullet4.setCollider("rectangle",0,0,10,10);
-
-    bullet5=createSprite(enemy4.x,enemy4.y,10,10);
-    bullet5.addImage(bulletimg);
-    bullet5.setCollider("rectangle",0,0,10,10);
-
-    bullet6=createSprite(enemy5.x,enemy5.y,10,10);
-    bullet6.addImage(bulletimg);
-    bullet6.setCollider("rectangle",0,0,10,10);
-
-    bullet7=createSprite(enemy6.x,enemy6.y,10,10);
-    bullet7.addImage(bulletimg);
-    bullet7.setCollider("rectangle",0,0,10,10);
-
-   
 
 }
+
+
 function draw(){
-    // background("#839a00");\
-    if(gameState===2){
-        background("green");
-        fill("grey");
-        rect(945,0,10,653);
 
+    console.log(gameState)
 
-        player.pointTo(mouseX,mouseY);
-        text(name,player.x-20,player.y+33);
-        
-        if(mouseX - player.x < 200 && 
-        mouseY - player.y < 200 &&
-        player.x - mouseX< 200 &&
-        player.y - mouseY<200){
+    if(gameState === 1){
+        form.display();
+    }
     
-            for(var i=0; i< 200; i = i+20){
-                push()
-                stroke(255)
-                strokeWeight(3) 
-                line(player.x,player.y,mouseX,mouseY)
-                pop()
-            } 
-            if(keyWentDown("space")){
-                player.changeImage("ps",playershootimg);
-                bullet=createSprite(player.x ,player.y ,10,10);
-                bullet.addImage(bulletimg);
-                bullet.debug = true;
-                bullet.lifetime = 20
-                bullet.setCollider("rectangle",0,0,10,10);
-                playerShoot(bullet)
-            
-             }
-            if(keyWentUp("space")){
-                player.changeImage("p",playerimg);
-            }
-        }
-
-        if(player.x-enemy1.x<150 && player.y-enemy1.y<150 && enemy1.x-player.x<150 && enemy1.y-player.y<150){
-            enemy1.pointTo(player.x,player.y);
-            enemy1.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-            ebullet=createSprite(enemy1.x +30,enemy1.y+15,10,10);
-            ebullet.addImage(bulletimg);
-            ebullet.setCollider("rectangle",0,0,10,10);
-            enemyBullet.add(ebullet)
-            shoot(ebullet,player);
-            }
-            
-                
-            if(enemyBullet.isTouching(player)){
-                enemyBullet.destroyEach()
-                health = health -20;
-            }
-
-        }else{
-            enemy1.changeImage("e",enemyimg);
-        }
-
-        
-        if(player.x-enemy2.x<150 && player.y-enemy2.y<150 && enemy2.x-player.x<150 && enemy2.y-player.y<150){
-            enemy2.pointTo(player.x,player.y);
-            enemy2.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-                ebullet=createSprite(enemy2.x +30,enemy2.y+15,10,10);
-                ebullet.addImage(bulletimg);
-                ebullet.setCollider("rectangle",0,0,10,10);
-                enemyBullet.add(ebullet)
-                shoot(ebullet,player);
-                }
-                
-                    
-                if(enemyBullet.isTouching(player)){
-                    enemyBullet.destroyEach()
-                    health = health -20;
-                }
-            
-        }
-        else{
-            enemy2.changeImage("e",enemyimg);
-        }
-        if(player.x-enemy3.x<150 && player.y-enemy3.y<150 && enemy3.x-player.x<150 && enemy3.y-player.y<150){
-            enemy3.pointTo(player.x,player.y);
-            enemy3.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-                ebullet=createSprite(enemy3.x +30,enemy3.y+15,10,10);
-                ebullet.addImage(bulletimg);
-                ebullet.setCollider("rectangle",0,0,10,10);
-                enemyBullet.add(ebullet)
-                shoot(ebullet,player);
-                }
-                
-                    
-                if(enemyBullet.isTouching(player)){
-                    enemyBullet.destroyEach()
-                    health = health -20;
-                }
-        }   
-        else{
-            enemy3.changeImage("e",enemyimg);
-        }
-        if(player.x-enemy4.x<150 && player.y-enemy4.y<150 && enemy4.x-player.x<150 && enemy4.y-player.y<150){
-            enemy4.pointTo(player.x,player.y);
-            enemy4.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-                ebullet=createSprite(enemy4.x +30,enemy4.y+15,10,10);
-                ebullet.addImage(bulletimg);
-                ebullet.setCollider("rectangle",0,0,10,10);
-                enemyBullet.add(ebullet)
-                shoot(ebullet,player);
-                }
-                
-                    
-                if(enemyBullet.isTouching(player)){
-                    enemyBullet.destroyEach()
-                    health = health -20;
-                }
-        }
-        else{
-            enemy4.changeImage("e",enemyimg);
-        }
-        if(player.x-enemy5.x<150 && player.y-enemy5.y<150 && enemy5.x-player.x<150 && enemy5.y-player.y<150){
-            enemy5.pointTo(player.x,player.y);
-            enemy5.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-                ebullet=createSprite(enemy5.x +30,enemy5.y+15,10,10);
-                ebullet.addImage(bulletimg);
-                ebullet.setCollider("rectangle",0,0,10,10);
-                enemyBullet.add(ebullet)
-                shoot(ebullet,player);
-                }
-                
-                    
-                if(enemyBullet.isTouching(player)){
-                    enemyBullet.destroyEach()
-                    health = health -20;
-                }
-        }
-        else{
-            enemy5.changeImage("e",enemyimg);
-        }
-        if(player.x-enemy6.x<150 && player.y-enemy6.y<150 && enemy6.x-player.x<150 && enemy6.y-player.y<150){
-            enemy6.pointTo(player.x,player.y);
-            enemy6.changeImage("s",enemyshootimg);
-            if(frameCount%20 === 0){
-                ebullet=createSprite(enemy6.x +30,enemy6.y+15,10,10);
-                ebullet.addImage(bulletimg);
-                ebullet.setCollider("rectangle",0,0,10,10);
-                enemyBullet.add(ebullet)
-                shoot(ebullet,player);
-                }
-                
-                    
-                if(enemyBullet.isTouching(player)){
-                    enemyBullet.destroyEach()
-                    health = health -20;
-                }
-        }
-        else{
-            enemy6.changeImage("e",enemyimg);
-        }
-        fill("black")
-        textSize(30)
-        text("Health:" + health, 800,500)
-
-        
+    if(gameState===2){
+        gameBegin();
+        playerMovement()
+        trajectory();
+        destroyEnemy();
+        enemyShoot();
+        healthImage()
         drawSprites();
-
-
     }
 
 
-    if(keyDown("w")){
-        player.y=player.y-3;
-    }
-    if(keyDown("s")){
-        player.y=player.y+3;
-    }
-    if(keyDown("a")){
-        player.x=player.x-3;
-    }
-    if(keyDown("d")){
-        player.x=player.x+3
+    if(player.isTouching(secret)){
+        text("CONGRATULATIONS, YOU HAVE FOUND THE TROPHY!",500,600);
+        trophy = trophy+1;
     }
 
-   
+    if(player.isTouching(house1)){
+        gameState = "won1";
+        form.hide();
+    }
 
-    player.collide(wall1);
-    player.collide(wall2);
-    player.collide(wall3);
-    player.collide(wall4);
-    player.collide(wall5);
-    player.collide(wall6);
-    player.collide(wall7);
-    player.collide(wall8);
-    player.collide(wall9);
-    player.collide(wall10);
-    player.collide(wall11);
-    player.collide(wall12);
-    player.collide(wall13);
-    player.collide(wall14);
-    player.collide(wall15);
-    player.collide(wall16);
-    player.collide(wall17);
-    player.collide(wall18);
-    player.collide(wall19);
-    player.collide(wall20);
-    player.collide(wall21);
-    player.collide(wall22);
+    if(gameState === "won1"){
+        background ("black")
+        textSize (45)
+        fill("green")
+        text ("Mission Accomplished!!!!", width/2 - 300, height/2);
+        form.retstart();
+        form.map2();
+    }
+
+
+
+    
+
+
+
+    player.collide(wallGroup)
+  
     player.collide(wallinv);
-    player.collide(wall23);
-    player.collide(wall24);
-    player.collide(wall25);
-    player.collide(wall26);
+   
     player.collide(box1);
     player.collide(box2);
     player.collide(box3);
@@ -535,13 +411,27 @@ function draw(){
     player.collide(tree7);
     player.collide(tree8);
     player.collide(pond1);
-
     player.collide(stone1);
     player.collide(stone2);
-
     player.collide(house1);
 
-    player.collide(edges);
+    if(bulletGroup.isTouching(wallGroup)){
+        bulletGroup.destroyEach()
+    }
+    
+    bulletGroup.collide(stone1);
+    bulletGroup.collide(stone2);
+
+    if(enemyBullet.isTouching(wallGroup)){
+        enemyBullet.destroyEach()
+    }
+
+    enemyBullet.collide(stone1);
+    enemyBullet.collide(stone2);
+
+    
+
+    
     fill("black");
     rect(950,0,431,653);
 
@@ -549,10 +439,17 @@ function draw(){
     fill("white")
     textSize(15);
     text('= MOVE WITH W,A,S,D =',1050,150);
-    text('= PRESS SPACEBAR TO SHOOT =',1050,200);
-    text('= USE MOUSE TO AIM =',1050,250);
-    text('= BULLETS HAVE LIMITED RANGE =',1050,300);
-    text('====================================',1020,320);
+    text('= PRESS SPACEBAR TO SHOOT =',1050,170);
+    text('= USE MOUSE TO AIM =',1050,190);
+    text('= BULLETS HAVE LIMITED RANGE =',1050,210);
+    text('= BULLETS PASS THROUGH -',1050,230);
+    text('= TREES, BENCHES AND BOXES =',1080,250);
+    text('= BULLETS COLLIDE WITH -',1050,270);
+    text('= STONE & WALLS =',1080,290)
+    text('====================================',1020,310);
+
+   
+   
     if(gameState!=2){
     text('Your character was part of an Elite Squad which',1020,450);
     text('was called in for secret missions carried out around',1020,470);
@@ -563,7 +460,10 @@ function draw(){
     text('Wrong-Doer for hundreds of years ...',1020,570);
     textSize(20)
     text('BABA YAGA .....',1020,620)
+    textSize(15);
+    text('You Have Found '+trophy+' trophies',600,590);
     }
+
     if(gameState===2){
     textSize(15);
     text('You have recieved information about the location',1020,450);
@@ -571,90 +471,302 @@ function draw(){
     text('kept. Your goal is to eliminate all the hostiles',1020,490);
     text('and steal the plans. GOOD LUCK!',1020,510);
     }
+
     player.depth=dirt1.depth+50;
-    
+
+    if(gameState === 3){
+        end();
+        form.hide();
+    }
+
+    //console.log(player.x,player.y) 
+}
+
+function gameBegin(){
+    background("green");
+    fill("grey");
+    rect(945,0,10,653);
+    player.pointTo(mouseX,mouseY);
+    text(name,player.x-20,player.y+33);
+}
+
+function healthImage(){
+    if (health === 100){
+    health1.changeImage("100",health100)
+    }else if (health === 80){
+        health1.changeImage("80",health80)
+    }else if (health === 60){
+        health1.changeImage("60",health60)
+    }else if (health === 40){
+        health1.changeImage("40",health40)
+    }else if (health === 20){
+        health1.changeImage("20",health20)
+    }else if (health === 0){
+        health1.changeImage("0",health0)
+        gameState = 3
+    }
+}
+
+function playerMovement(){   
+    if(keyDown("w")){
+        player.y=player.y-3;
+    }
+    if(keyDown("s")){
+        player.y=player.y+3;
+    }
+    if(keyDown("a")){
+        player.x=player.x-3
+    }
+    if(keyDown("d")){
+        player.x=player.x+3
+    }
+}
+
+function trajectory(){
+    if(mouseX - player.x < 200 && mouseY - player.y < 200 && player.x - mouseX< 200 && player.y - mouseY<200){
+        for(var i=0; i< 200; i = i+20){ 
+            push()
+            stroke(255)
+            strokeWeight(3) 
+            line(player.x,player.y,mouseX,mouseY)
+            pop()
+        } 
+        if(keyWentDown("space") && gameState===2){
+            player.changeImage("ps",playershootimg);
+            bullet=createSprite(player.x,player.y,10,10);
+            bullet.addImage(bulletimg);
+            bullet.setCollider("rectangle",0,0,10,10);
+            bulletGroup.add(bullet)
+            
+            PlayerShoot(bullet);
+            gunshot.play();  
+        }
+        if(keyWentUp("space")&& gameState===2){
+            player.changeImage("p",playerimg);
+        }
+    }
+}
+
+function destroyEnemy(){
+    if(bulletGroup.isTouching(enemy1)){
+        enemy1.x = -500
+        enemy1.destroy();
+        enemyBullet.destroyEach()
+    }
+    if(bulletGroup.isTouching(enemy2)){
+        enemy2.x = -500
+        enemy2.destroy();
+        enemyBullet.destroyEach()
+    }
+    if(bulletGroup.isTouching(enemy3)){
+        enemy3.x = -500
+        enemy3.destroy();
+        enemyBullet.destroyEach()
+    }
+    if(bulletGroup.isTouching(enemy4)){
+        enemy4.x = -500
+        enemy4.destroy();
+        enemyBullet.destroyEach()
+    }
+    if(bulletGroup.isTouching(enemy5)){
+        enemy5.x = -500
+        enemy5.destroy();
+        enemyBullet.destroyEach()
+    }
+    if(bulletGroup.isTouching(enemy6)){
+        enemy6.x = -500
+        enemy6.destroy();
+        enemyBullet.destroyEach()
+    }
+}
+
+
+function enemyShoot(){      
+    if(player.x-enemy1.x<150 && player.y-enemy1.y<150 && enemy1.x-player.x<150 && enemy1.y-player.y<150 ){
+        enemy1.pointTo(player.x,player.y);
+        enemy1.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0 ){
+            ebullet=createSprite(enemy1.x +30,enemy1.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+            }
+        if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+        }
+    }else{
+        enemy1.changeImage("e",enemyimg);
+    }
+
+    if(player.x-enemy2.x<150 && player.y-enemy2.y<150 && enemy2.x-player.x<150 && enemy2.y-player.y<150){
+        enemy2.pointTo(player.x,player.y);
+        enemy2.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0){
+            ebullet=createSprite(enemy2.x +30,enemy2.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+        }
+        if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+        }
+    }else{
+        enemy2.changeImage("e",enemyimg);
+    }
+
+    if(player.x-enemy3.x<150 && player.y-enemy3.y<150 && enemy3.x-player.x<150 && enemy3.y-player.y<150){
+        enemy3.pointTo(player.x,player.y);
+        enemy3.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0 ){
+            
+            ebullet=createSprite(enemy3.x +30,enemy3.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+            }
+        if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+        }
+    } else{
+        enemy3.changeImage("e",enemyimg);
+    }
+
+    if(player.x-enemy4.x<150 && player.y-enemy4.y<150 && enemy4.x-player.x<150 && enemy4.y-player.y<150){
+        enemy4.pointTo(player.x,player.y);
+        enemy4.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0){
+            ebullet=createSprite(enemy4.x +30,enemy4.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+            }
+            
+                
+            if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+            }
+    }else{
+        enemy4.changeImage("e",enemyimg);
+    }
+
+    if(player.x-enemy5.x<150 && player.y-enemy5.y<150 && enemy5.x-player.x<150 && enemy5.y-player.y<150){
+        enemy5.pointTo(player.x,player.y);
+        enemy5.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0){
+            ebullet=createSprite(enemy5.x +30,enemy5.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+            }
+            
+                
+            if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+            }
+    }else{
+        enemy5.changeImage("e",enemyimg);
+    }
+
+    if(player.x-enemy6.x<150 && player.y-enemy6.y<150 && enemy6.x-player.x<150 && enemy6.y-player.y<150){
+        enemy6.pointTo(player.x,player.y);
+        enemy6.changeImage("s",enemyshootimg);
+        if(frameCount%20 === 0){
+            ebullet=createSprite(enemy6.x +30,enemy6.y+15,10,10);
+            ebullet.addImage(bulletimg);
+            ebullet.setCollider("rectangle",0,0,10,10);
+            enemyBullet.add(ebullet)
+            shoot(ebullet,player);
+            }
+            
+                
+            if(enemyBullet.isTouching(player)){
+                enemyBullet.destroyEach()
+                health = health -20;
+            }
+    }else{
+        enemy6.changeImage("e",enemyimg);
+    }
+}
+
+function end(){
+    background ("black")
+    textSize (45)
+    fill("red")
+    text ("Mission Incomplete!!!!", width/2 - 300, height/2)
+    form.restart();
+
 }
 
 function shoot(b,p) {
-    
-    var x1 = p.x - b.x;
-    var y1 = p.y - b.y;
-    
-    var x2 = b.x-p.x;
-    var y2 = b.y-p.y ;
-					
-	// Using pythagoras' theorm to find the distance (the length of the vector)
-    var l1 = Math.sqrt(x1 * x1 + y1 * y1); 
-    var l3 = Math.sqrt(x1 * x1 + y2 * y2);
-   
-					
-	// Dividing by the distance gives a normalized vector whose length is 1
-	x1 = x1/l1;
-    y1 = y1/l1;
-    x2 = x2/l3;
-    y2 = y2/l3
-
-                   
-    if(p.x >= b.x && p.y >= b.y){
-        b.velocityX = x1 * 20
-        b.velocityY = y1 * 20
-    }
-    if(p.x > b.x && p.y < b.y){
-        b.velocityX = x1 * 20
-        b.velocityY = -y2 * 20
-    }
-    if(p.x < b.x && p.y > b.y){
-        b.velocityX = -x2 * 20
-        b.velocityY = y1 * 20
-    }
-    if(p.x < b.x && p.y < b.y){
-        b.velocityX = -x2 * 20
-        b.velocityY = -y2 * 20
-    }
-				
-}
-
-function playerShoot(b){
-    
-    
-        var x1 = mouseX - b.x;
-        var y1 = mouseY - b.y;
-        
-        var x2 = b.x-mouseX ;
-        var y2 = b.y-mouseY ;
-                        
-        // Using pythagoras' theorm to find the distance (the length of the vector)
+     //console.log("calling");
+      var x1 = p.x - b.x; 
+      var y1 = p.y - b.y;
+       var x2 = b.x-p.x; 
+       var y2 = b.y-p.y ;
+        // Using pythagoras' theorm to find the distance (the length of the vector) 
         var l1 = Math.sqrt(x1 * x1 + y1 * y1); 
-        var l3 = Math.sqrt(x1 * x1 + y2 * y2);
-       
-                        
-        // Dividing by the distance gives a normalized vector whose length is 1
+        var l3 = Math.sqrt(x1 * x1 + y2 * y2); 
+        // Dividing by the distance gives a normalized vector whose length is 1 
         x1 = x1/l1;
         y1 = y1/l1;
         x2 = x2/l3;
-        y2 = y2/l3
-    
-                       
-        if(mouseX >= b.x && mouseY >= b.y){
-            b.velocityX = x1 * 20
-            b.velocityY = y1 * 20
-        }
-        if(mouseX > b.x && mouseY < b.y){
-            b.velocityX = x1 * 20
-            b.velocityY = -y2 * 20
-        }
-        if(mouseX < b.x && mouseY > b.y){
-            b.velocityX = -x2 * 20
-            b.velocityY = y1 * 20
-        }
-        if(mouseX < b.x && mouseY < b.y){
-            b.velocityX = -x2 * 20
-            b.velocityY = -y2 * 20
-        }
-                    
-    
+        y2 = y2/l3 ;
+        if(p.x >= b.x && p.y >= b.y){
+             b.velocityX = x1 * 10 
+             b.velocityY = y1 * 10 
+        } 
+        if(p.x > b.x && p.y < b.y){
+            b.velocityX = x1 * 10 
+            b.velocityY = -y2 * 10
+         } 
+        if(p.x < b.x && p.y > b.y){
+               b.velocityX = -x2 * 10 
+            b.velocityY = y1 * 10 
+        } 
+        if(p.x < b.x && p.y < b.y){
+              b.velocityX = -x2 * 10
+            b.velocityY = -y2 * 10 
+        } 
 }
 
-function bullet(){
- 
+function PlayerShoot(b) {
+           // console.log("calling");
+             var x1 = mouseX - b.x; 
+             var y1 = mouseY - b.y;
+              var x2 = b.x-mouseX; 
+              var y2 = b.y-mouseY;
+               // Using pythagoras' theorm to find the distance (the length of the vector) 
+               var l1 = Math.sqrt(x1 * x1 + y1 * y1); 
+               var l3 = Math.sqrt(x1 * x1 + y2 * y2); 
+               // Dividing by the distance gives a normalized vector whose length is 1 
+               x1 = x1/l1;
+               y1 = y1/l1;
+               x2 = x2/l3;
+                y2 = y2/l3 ;
+               if(mouseX >= b.x && mouseY  >= b.y){
+                    b.velocityX = x1 * 20 
+                    b.velocityY = y1 * 20 
+                } 
+               if(mouseX > b.x && mouseY  < b.y){
+                      b.velocityX = x1 * 20 
+                   b.velocityY = -y2 * 20 
+                } 
+               if(mouseX < b.x && mouseY  > b.y){
+                      b.velocityX = -x2 * 20 
+                   b.velocityY = y1 * 20 
+                } 
+               if(mouseX< b.x && mouseY  < b.y){  
+                    b.velocityX = -x2 * 20
+                   b.velocityY = -y2 * 20
+                 } 
 }
